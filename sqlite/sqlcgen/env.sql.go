@@ -11,67 +11,23 @@ import (
 
 const envCreate = `-- name: EnvCreate :one
 INSERT INTO env (
-    name, comment, create_time, update_time
+    create_time
 ) VALUES (
-    ?   , ?      , ?          , ?
+    ?
 )
-RETURNING name, comment, create_time, update_time
+RETURNING id, create_time
 `
 
-type EnvCreateParams struct {
-	Name       string
-	Comment    string
-	CreateTime string
-	UpdateTime string
-}
-
-type EnvCreateRow struct {
-	Name       string
-	Comment    string
-	CreateTime string
-	UpdateTime string
-}
-
-func (q *Queries) EnvCreate(ctx context.Context, arg EnvCreateParams) (EnvCreateRow, error) {
-	row := q.db.QueryRowContext(ctx, envCreate,
-		arg.Name,
-		arg.Comment,
-		arg.CreateTime,
-		arg.UpdateTime,
-	)
-	var i EnvCreateRow
-	err := row.Scan(
-		&i.Name,
-		&i.Comment,
-		&i.CreateTime,
-		&i.UpdateTime,
-	)
+func (q *Queries) EnvCreate(ctx context.Context, createTime string) (Env, error) {
+	row := q.db.QueryRowContext(ctx, envCreate, createTime)
+	var i Env
+	err := row.Scan(&i.ID, &i.CreateTime)
 	return i, err
 }
 
-const envDelete = `-- name: EnvDelete :exec
-DELETE FROM env WHERE name = ?
-`
-
-func (q *Queries) EnvDelete(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, envDelete, name)
-	return err
-}
-
-const envFindID = `-- name: EnvFindID :one
-SELECT env_id FROM env WHERE name = ?
-`
-
-func (q *Queries) EnvFindID(ctx context.Context, name string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, envFindID, name)
-	var env_id int64
-	err := row.Scan(&env_id)
-	return env_id, err
-}
-
 const envList = `-- name: EnvList :many
-SELECT env_id, name, comment, create_time, update_time FROM env
-ORDER BY name ASC
+SELECT id, create_time FROM env
+ORDER BY create_time ASC
 `
 
 func (q *Queries) EnvList(ctx context.Context) ([]Env, error) {
@@ -83,13 +39,7 @@ func (q *Queries) EnvList(ctx context.Context) ([]Env, error) {
 	var items []Env
 	for rows.Next() {
 		var i Env
-		if err := rows.Scan(
-			&i.EnvID,
-			&i.Name,
-			&i.Comment,
-			&i.CreateTime,
-			&i.UpdateTime,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.CreateTime); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -103,57 +53,19 @@ func (q *Queries) EnvList(ctx context.Context) ([]Env, error) {
 	return items, nil
 }
 
-const envShow = `-- name: EnvShow :one
-SELECT
-    name, comment, create_time, update_time
-FROM env
-WHERE name = ?
-`
-
-type EnvShowRow struct {
-	Name       string
-	Comment    string
-	CreateTime string
-	UpdateTime string
-}
-
-func (q *Queries) EnvShow(ctx context.Context, name string) (EnvShowRow, error) {
-	row := q.db.QueryRowContext(ctx, envShow, name)
-	var i EnvShowRow
-	err := row.Scan(
-		&i.Name,
-		&i.Comment,
-		&i.CreateTime,
-		&i.UpdateTime,
-	)
-	return i, err
-}
-
 const envUpdate = `-- name: EnvUpdate :exec
 UPDATE env SET
-    name = COALESCE(?1, name),
-    comment = COALESCE(?2, comment),
-    create_time = COALESCE(?3, create_time),
-    update_time = COALESCE(?4, update_time)
-WHERE name = ?5
+    create_time = COALESCE(?1, create_time)
+WHERE id = ?2
 `
 
 type EnvUpdateParams struct {
-	NewName    *string
-	Comment    *string
 	CreateTime *string
-	UpdateTime *string
-	Name       string
+	ID         int64
 }
 
 // See https://docs.sqlc.dev/en/latest/howto/named_parameters.html#nullable-parameters
 func (q *Queries) EnvUpdate(ctx context.Context, arg EnvUpdateParams) error {
-	_, err := q.db.ExecContext(ctx, envUpdate,
-		arg.NewName,
-		arg.Comment,
-		arg.CreateTime,
-		arg.UpdateTime,
-		arg.Name,
-	)
+	_, err := q.db.ExecContext(ctx, envUpdate, arg.CreateTime, arg.ID)
 	return err
 }
