@@ -1,16 +1,14 @@
 -- name: EnvCreate :one
 INSERT INTO env (
+    id,
     create_time
 ) VALUES (
+    ?,
     ?
 )
 RETURNING id, create_time;
 
--- name: EnvList :many
-SELECT * FROM env
-ORDER BY create_time ASC;
-
--- name: EnvList :one
+-- name: EnvGet :one
 SELECT * FROM env
 WHERE id = ?;
 

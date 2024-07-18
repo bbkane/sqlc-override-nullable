@@ -11,46 +11,37 @@ import (
 
 const envCreate = `-- name: EnvCreate :one
 INSERT INTO env (
+    id,
     create_time
 ) VALUES (
+    ?,
     ?
 )
 RETURNING id, create_time
 `
 
-func (q *Queries) EnvCreate(ctx context.Context, createTime string) (Env, error) {
-	row := q.db.QueryRowContext(ctx, envCreate, createTime)
+type EnvCreateParams struct {
+	ID         int64
+	CreateTime string
+}
+
+func (q *Queries) EnvCreate(ctx context.Context, arg EnvCreateParams) (Env, error) {
+	row := q.db.QueryRowContext(ctx, envCreate, arg.ID, arg.CreateTime)
 	var i Env
 	err := row.Scan(&i.ID, &i.CreateTime)
 	return i, err
 }
 
-const envList = `-- name: EnvList :many
+const envGet = `-- name: EnvGet :one
 SELECT id, create_time FROM env
-ORDER BY create_time ASC
+WHERE id = ?
 `
 
-func (q *Queries) EnvList(ctx context.Context) ([]Env, error) {
-	rows, err := q.db.QueryContext(ctx, envList)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Env
-	for rows.Next() {
-		var i Env
-		if err := rows.Scan(&i.ID, &i.CreateTime); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) EnvGet(ctx context.Context, id int64) (Env, error) {
+	row := q.db.QueryRowContext(ctx, envGet, id)
+	var i Env
+	err := row.Scan(&i.ID, &i.CreateTime)
+	return i, err
 }
 
 const envUpdate = `-- name: EnvUpdate :exec
