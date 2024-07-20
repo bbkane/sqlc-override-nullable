@@ -1,0 +1,4 @@
+CREATE TABLE env (
+    id INTEGER PRIMARY KEY,
+    create_time TEXT NOT NULL
+) STRICT;

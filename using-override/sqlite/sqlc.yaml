@@ -1,0 +1,15 @@
+sql:
+  - engine: sqlite
+    gen:
+      go:
+        emit_pointers_for_null_types: true
+        out: sqlcgen
+        package: sqlcgen
+        overrides:
+          - column: "env.create_time"
+            go_type: "go.bbkane.com/sqlc-override-nullable/using-override/sqlite.SQLiteTime"
+    queries: queries
+    schema: migrations
+# yq wants to double quote "2", but yamllint wants it single-quoted
+# yamllint disable-line rule:quoted-strings
+version: "2"
