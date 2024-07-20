@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"go.bbkane.com/sqlc-override-nullable/sqlite"
-	"go.bbkane.com/sqlc-override-nullable/sqlite/sqlcgen"
+	"go.bbkane.com/sqlc-override-nullable/using-text/sqlite"
+	"go.bbkane.com/sqlc-override-nullable/using-text/sqlite/sqlcgen"
 )
 
 func panicIf(err error) {
