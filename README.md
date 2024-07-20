@@ -1,6 +1,6 @@
 # 2024-07-20 sqlc codegen bug
 
-TODO: put issue link here
+Created issue at https://github.com/sqlc-dev/sqlc/issues/3494
 
 Build:
 
@@ -8,7 +8,7 @@ Build:
 go generate ./...
 ```
 
-Run `using-text`, which works as expected
+Run `using-text`, which works as expected:
 
 ```bash
 $ go run ./using-text
@@ -36,4 +36,4 @@ real update...
 sqlcgen.Env{ID:1, CreateTime:"0001-01-01T11:11:11Z"}
 ```
 
-As the type generated is not a pointer, you can't update it with NULL.
+As the type generated is not a pointer, there's no way to pass a NULL value from the Go code to the SQL.
