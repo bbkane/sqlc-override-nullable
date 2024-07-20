@@ -24,7 +24,7 @@ func printEnv(ctx context.Context, title string, queries *sqlcgen.Queries, id in
 func main() {
 
 	zeroTime := "0001-01-01T00:00:00Z"
-	oneTime := "0001-01-01T01:00:00Z"
+	oneTime := "0001-01-01T11:11:11Z"
 	var id int64 = 1
 
 	os.Remove("tmp.db")
@@ -45,6 +45,7 @@ func main() {
 	// empty update
 	err = queries.EnvUpdate(ctx, sqlcgen.EnvUpdateParams{
 		CreateTime: nil,
+		ID:         id,
 	})
 	panicIf(err)
 	printEnv(ctx, "empty update...", queries, id)
@@ -52,6 +53,7 @@ func main() {
 	// real update
 	err = queries.EnvUpdate(ctx, sqlcgen.EnvUpdateParams{
 		CreateTime: &oneTime,
+		ID:         id,
 	})
 	panicIf(err)
 	printEnv(ctx, "real update...", queries, id)
