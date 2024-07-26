@@ -62,3 +62,20 @@ func (q *Queries) EnvUpdate(ctx context.Context, arg EnvUpdateParams) error {
 	_, err := q.db.ExecContext(ctx, envUpdate, arg.CreateTime, arg.ID)
 	return err
 }
+
+const envUpdate2 = `-- name: EnvUpdate2 :exec
+UPDATE env SET
+    create_time = COALESCE(CAST(?1 AS TEXT), create_time)
+WHERE id = ?2
+`
+
+type EnvUpdate2Params struct {
+	CreateTime *string
+	ID         int64
+}
+
+// See https://docs.sqlc.dev/en/latest/howto/named_parameters.html#nullable-parameters
+func (q *Queries) EnvUpdate2(ctx context.Context, arg EnvUpdate2Params) error {
+	_, err := q.db.ExecContext(ctx, envUpdate2, arg.CreateTime, arg.ID)
+	return err
+}
